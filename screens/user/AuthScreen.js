@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Button, ScrollView, TextInput, ActivityIndicator, Alert } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import * as authActions from '../../store/actions/auth';
+import * as userActions from '../../store/actions/user';
 
 const AuthScreen = props => {
     const [isLoading, setIsLoading] = useState(false);
@@ -17,6 +18,15 @@ const AuthScreen = props => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
 
+    const allUsers = useSelector(state => state.users.users);
+
+    useEffect(() => {
+        setIsLoading(true);
+        dispatch(userActions.fetchUsers()).then(() => {
+            setIsLoading(false);
+        });
+    }, [dispatch]);
+
     useEffect(() => {
         if (error) {
             Alert.alert('Wystąpił błąd!', error, [{ text: 'Ok' }]);
@@ -26,7 +36,8 @@ const AuthScreen = props => {
     const authHandler = async () => {
         let action;
         if (isLoginScreen) {
-            action = authActions.login(email, password);
+            const userEmail = allUsers.find(user => user.username === username);
+            action = authActions.login(userEmail.email, password);
         } else {
             action = authActions.signUp(email, password);
         }
@@ -36,6 +47,9 @@ const AuthScreen = props => {
 
         try {
             await dispatch(action);
+            if(!isLoginScreen){
+                dispatch(userActions.createUser(firstName,lastName,email,username));
+            }
             props.navigation.navigate('Menu');
         } catch (err) {
             setError(err.message);
@@ -51,11 +65,13 @@ const AuthScreen = props => {
                         <Button title="Logowanie" onPress={() => {
                             setIsLoginScreen(true);
                             setEmail('');
+                            setUsername('');
                             setPassword('');
                         }} />
                         <Button title="Rejestracja" onPress={() => {
                             setIsLoginScreen(false);
                             setEmail('');
+                            setUsername('');
                             setPassword('');
                         }} />
                     </View>
@@ -68,9 +84,9 @@ const AuthScreen = props => {
                                     autoCapitalize="none"
                                     autoCorrect={false}
                                     onChangeText={text => {
-                                        setEmail(text);
+                                        setUsername(text);
                                     }}
-                                    value={email}
+                                    value={username}
                                 />
                                 <TextInput style={styles.input}
                                     placeholder="Hasło"
