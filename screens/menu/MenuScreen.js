@@ -1,10 +1,17 @@
 import React from "react";
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Button } from 'react-native';
 
 const MenuScreen = props => {
     return (
         <View style={styles.screen}>
-            <Text style={{fontSize: 22}}>Praca w toku!</Text>
+            <View style={styles.titleContainer}>
+                <Text style={{fontSize: 22}}>Menu główne</Text>
+            </View>
+            <View>
+                <Button title="Dane użytkownika" onPress={() => {
+                    props.navigation.navigate('UserData');
+                }} />
+            </View>
         </View>
     );
 };
@@ -12,8 +19,12 @@ const MenuScreen = props => {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
+    },
+    titleContainer: {
+        width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
+        paddingVertical: 50,
     }
 });
 

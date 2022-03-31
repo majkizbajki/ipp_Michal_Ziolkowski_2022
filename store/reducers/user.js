@@ -2,6 +2,8 @@ import User from "../../models/user";
 import { CREATE_USER, UPDATE_USER, SET_USERS } from "../actions/user";
 
 const initialState = {
+    userId: null,
+    dbname: null,
     users: []
 };
 
@@ -11,7 +13,9 @@ export default ( state = initialState, action ) => {
             const allUsers = action.users;
             return {
                 ...state,
-                users: allUsers
+                userId: action.logId,
+                dbname: action.dbname,
+                users: allUsers,
             }
         case CREATE_USER:
             const newUser = new User(
@@ -20,26 +24,34 @@ export default ( state = initialState, action ) => {
                 action.user.lastname,
                 action.user.email,
                 action.user.username,
-                []
+                action.user.friends
             );
             return {
                 ...state,
+                userId: action.logId,
+                dbname: action.dbname,
                 users: state.users.concat(newUser)
             };
         case UPDATE_USER:
-            const userIdentifier = state.users.findIndex(user => user.authId === action.authId);
+            // const userIdentifier = state.users.findIndex(user => user.authId === action.logId);
             const updatedUser = new User(
-                state.users[userIdentifier].authId,
+                action.user.authId,
                 action.user.firstname,
                 action.user.lastname,
                 action.user.email,
-                state.users[userIdentifier].username,
-                state.users[userIdentifier].friends
+                action.user.username,
+                action.user.friends
             );
             const updatedUsers = [...state.users];
-            updatedUsers[userIdentifier] = updatedUser;
+            for (key in updatedUsers){
+                if(updatedUsers[key].authId === action.user.authId){
+                    updatedUsers[key] = updatedUser;
+                }
+            }
             return {
                 ...state,
+                userId: action.logId,
+                dbname: action.dbname,
                 users: updatedUsers
             };
         default:

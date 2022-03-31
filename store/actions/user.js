@@ -6,10 +6,10 @@ export const SET_USERS = 'SET_USERS';
 
 export const fetchUsers = () => {
 
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
+        const userId = getState().auth.userId;
         try {
-            const response = await fetch('https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/users.json'
-            );
+            const response = await fetch('https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/users.json');
 
             if(!response.ok) {
                 throw new Error("Coś poszło nie tak!");
@@ -17,12 +17,16 @@ export const fetchUsers = () => {
 
             const resData = await response.json();
             const allUsers = [];
+            let dbName;
 
             for (const key in resData) {
                 allUsers.push(new User(resData[key].authId, resData[key].firstname, resData[key].lastname, resData[key].email, resData[key].username, resData[key].friends));
+                if (resData[key].authId === userId){
+                    dbName = key;
+                }
             }
 
-            dispatch({ type: SET_USERS, users: allUsers });
+            dispatch({ type: SET_USERS, logId: userId, dbname: dbName ,users: allUsers });
         }
         catch (err) {
             throw err;
@@ -53,10 +57,10 @@ export const createUser = (firstname, lastname, email, username) => {
             throw new Error("Coś poszło nie tak!");
         }
 
-        const resData = response.json();
+        const resData = await response.json();
 
         dispatch({
-            type: CREATE_USER, user: {
+            type: CREATE_USER, logId: userId, dbname: resData.name, user: {
                 authId: userId,
                 firstname: firstname,
                 lastname: lastname,
@@ -68,10 +72,11 @@ export const createUser = (firstname, lastname, email, username) => {
     };
 };
 
-export const updateProduct = (id, firstname, lastname, email) => {
-    return async (dispatch, getState) => {
-        // const token = getState().auth.token;
-        const response = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/users/${id}.json`, {
+export const updateUser = (dbname, authId, firstname, lastname, email, username, friends) => {
+    return async (dispatch, getState, setState) => {
+        const userId = getState().auth.userId;
+        const idToken = getState().auth.token;
+        const response = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/users/${dbname}.json`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -79,7 +84,7 @@ export const updateProduct = (id, firstname, lastname, email) => {
             body: JSON.stringify({
                 firstname,
                 lastname,
-                email,
+                email
             })
         });
 
@@ -87,11 +92,34 @@ export const updateProduct = (id, firstname, lastname, email) => {
             throw new Error("Coś poszło nie tak!");
         }
 
+        const responseAuth = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyCWHo2xsoWaeuLP841VNVSgfkuRZzG8oVE", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                idToken: idToken,
+                email: email,
+                returnSecureToken: true
+            })
+        });
+
+        if(!responseAuth.ok) {
+            throw new Error("Coś poszło nie tak!");
+        }
+
+        const resData = await responseAuth.json();
+        const authState = getState().auth;
+        authState.token = resData.idToken;
+
         dispatch({
-            type: UPDATE_USER, authId: id, user: {
+            type: UPDATE_USER, logId: userId, dbname: dbname, user: {
+                authId: authId,
                 firstname: firstname,
                 lastname: lastname,
                 email: email,
+                username: username,
+                friends: friends
             }
         });
     }

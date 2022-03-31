@@ -50,6 +50,7 @@ const AuthScreen = props => {
             if(!isLoginScreen){
                 dispatch(userActions.createUser(firstName,lastName,email,username));
             }
+            dispatch(userActions.fetchUsers());
             props.navigation.navigate('Menu');
         } catch (err) {
             setError(err.message);
@@ -126,6 +127,7 @@ const AuthScreen = props => {
                                         setLastName(text);
                                     }}
                                     value={lastName}
+                                    secureTextEntry={false}
                                 />
                                 <TextInput style={styles.input}
                                     placeholder="E-mail"
