@@ -77,6 +77,7 @@ export const updateUser = (dbname, authId, firstname, lastname, email, username,
     return async (dispatch, getState) => {
         const userId = getState().auth.userId;
         const idToken = getState().auth.token;
+
         const response = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/users/${dbname}.json`, {
             method: 'PATCH',
             headers: {
@@ -106,12 +107,14 @@ export const updateUser = (dbname, authId, firstname, lastname, email, username,
         });
 
         if (!responseAuth.ok) {
-            throw new Error("Coś poszło nie tak!");
+            throw new Error("Coś poszło nie tak AUTH!");
         }
 
         const resData = await responseAuth.json();
         const authState = getState().auth;
-        authState.token = resData.idToken;
+        if(resData.idToken) {
+            authState.token = resData.idToken;
+        }
 
         dispatch({
             type: UPDATE_USER, logId: userId, dbname: dbname, user: {

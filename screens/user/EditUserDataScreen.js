@@ -46,19 +46,46 @@ const EditUserDataScreen = props => {
         setError();
         setIsLoading(true);
 
-        try{
-            await dispatch(userActions.updateUser(
-                allUsers.dbname,
-                actuallUser.authId,
-                firstName.toString(),
-                lastName.toString(),
-                email.toString(),
-                actuallUser.username,
-                actuallUser.friends
-            ));
-        } catch(err) {
-            setError(err.message);
-            setIsLoading(false);
+        if(email.length > 0 && firstName.length > 0 && lastName.length > 0){
+
+            var emailRegex = /^[a-z0-9]+@[a-z0-9]+.[a-z]{2,3}$/;
+            
+            if(emailRegex.test(email)){
+
+                const emailsArray = [];
+                for(var i=0;i<allUsers.users.length;i++){
+                    if(allUsers.users[i].email != actuallUser.email){
+                        emailsArray.push(allUsers.users[i].email);
+                    }
+                }
+
+                if(!emailsArray.includes(email)){
+
+                    try{
+                        await dispatch(userActions.updateUser(
+                            allUsers.dbname,
+                            actuallUser.authId,
+                            firstName.toString(),
+                            lastName.toString(),
+                            email.toString(),
+                            actuallUser.username,
+                            actuallUser.friends
+                        ));
+                    } catch(err) {
+                        setError(err.message);
+                        setIsLoading(false);
+                    }
+                }
+                else {
+                    setError("Wprowadzony adres e-mail jest już zajęty. Spróbuj ponownie!");
+                }
+            }
+            else {
+                setError("Wprowadzono nieprawidłowy adres e-mail!");
+            }
+        }
+        else {
+            setError("Pola: Imię, Nazwisko oraz E-mail nie mogą być puste!");
         }
 
         setIsReloading(!isReloading);
