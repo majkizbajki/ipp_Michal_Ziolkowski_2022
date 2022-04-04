@@ -35,13 +35,28 @@ const UpdatePasswordScreen = props => {
         setError();
         setIsLoading(true);
 
-        try{
-            await dispatch(userActions.updatePassword(newPassword));
-            props.navigation.navigate("BasicData");
-        } catch(err) {
-            setError(err.message);
-            setIsLoading(false);
+        if (newPassword === confirmNewPassword){
+
+            var regex = /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+            
+            if(regex.test(newPassword)){
+
+                try{
+                    await dispatch(userActions.updatePassword(newPassword));
+                    props.navigation.navigate("BasicData");
+                } catch(err) {
+                    setError(err.message);
+                    setIsLoading(false);
+                }
+            }
+            else {
+                setError("Wprowadzone hasło musi mieć minimalną długość 8 znaków, w tym jedną dużą literę, jedną małą literę, jedną cyfrę oraz jeden znak specjalny (!@#$%^&*)!");
+            }
         }
+        else {
+            setError("Wprowadzone hasła różnią się od siebie!");
+        }
+
     };
     
     return (
@@ -71,7 +86,7 @@ const UpdatePasswordScreen = props => {
             </View>
             <View>
                 <Button title="Zapisz" onPress={() => {
-                    saveNewPasswordHandler()
+                    saveNewPasswordHandler();
                 }} />
             </View>
         </View>
