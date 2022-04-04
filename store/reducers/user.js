@@ -1,5 +1,5 @@
 import User from "../../models/user";
-import { CREATE_USER, UPDATE_USER, SET_USERS } from "../actions/user";
+import { CREATE_USER, UPDATE_USER, SET_USERS, UPDATE_USER_PASSWORD } from "../actions/user";
 
 const initialState = {
     userId: null,
@@ -54,6 +54,10 @@ export default ( state = initialState, action ) => {
                 dbname: action.dbname,
                 users: updatedUsers
             };
+        case UPDATE_USER_PASSWORD:
+            return {
+                ...state,
+            }
         default:
             return state;
     }

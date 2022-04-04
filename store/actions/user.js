@@ -3,6 +3,7 @@ import User from "../../models/user";
 export const CREATE_USER = 'CREATE_USER';
 export const UPDATE_USER = 'UPDATE_USER';
 export const SET_USERS = 'SET_USERS';
+export const UPDATE_USER_PASSWORD = 'UPDATE_USER_PASSWORD';
 
 export const fetchUsers = () => {
 
@@ -11,7 +12,7 @@ export const fetchUsers = () => {
         try {
             const response = await fetch('https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/users.json');
 
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error("Coś poszło nie tak!");
             }
 
@@ -21,12 +22,12 @@ export const fetchUsers = () => {
 
             for (const key in resData) {
                 allUsers.push(new User(resData[key].authId, resData[key].firstname, resData[key].lastname, resData[key].email, resData[key].username, resData[key].friends));
-                if (resData[key].authId === userId){
+                if (resData[key].authId === userId) {
                     dbName = key;
                 }
             }
 
-            dispatch({ type: SET_USERS, logId: userId, dbname: dbName ,users: allUsers });
+            dispatch({ type: SET_USERS, logId: userId, dbname: dbName, users: allUsers });
         }
         catch (err) {
             throw err;
@@ -53,7 +54,7 @@ export const createUser = (firstname, lastname, email, username) => {
             })
         });
 
-        if(!response.ok) {
+        if (!response.ok) {
             throw new Error("Coś poszło nie tak!");
         }
 
@@ -73,7 +74,7 @@ export const createUser = (firstname, lastname, email, username) => {
 };
 
 export const updateUser = (dbname, authId, firstname, lastname, email, username, friends) => {
-    return async (dispatch, getState, setState) => {
+    return async (dispatch, getState) => {
         const userId = getState().auth.userId;
         const idToken = getState().auth.token;
         const response = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/users/${dbname}.json`, {
@@ -88,7 +89,7 @@ export const updateUser = (dbname, authId, firstname, lastname, email, username,
             })
         });
 
-        if(!response.ok) {
+        if (!response.ok) {
             throw new Error("Coś poszło nie tak!");
         }
 
@@ -104,7 +105,7 @@ export const updateUser = (dbname, authId, firstname, lastname, email, username,
             })
         });
 
-        if(!responseAuth.ok) {
+        if (!responseAuth.ok) {
             throw new Error("Coś poszło nie tak!");
         }
 
@@ -121,6 +122,35 @@ export const updateUser = (dbname, authId, firstname, lastname, email, username,
                 username: username,
                 friends: friends
             }
+        });
+    }
+};
+
+export const updatePassword = (newPassword) => {
+    return async (dispatch, getState) => {
+        const idToken = getState().auth.token;
+        const response = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyCWHo2xsoWaeuLP841VNVSgfkuRZzG8oVE", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                idToken: idToken,
+                password: newPassword,
+                returnSecureToken: true
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Coś poszło nie tak!");
+        }
+
+        const resData = await response.json();
+        const authState = getState().auth;
+        authState.token = resData.idToken;
+
+        dispatch({
+            type: UPDATE_USER_PASSWORD
         });
     }
 };

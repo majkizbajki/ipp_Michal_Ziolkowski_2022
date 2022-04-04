@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { View, Text, StyleSheet, Button, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -69,7 +69,7 @@ const EditUserDataScreen = props => {
             <View style={styles.topBar}>
                 <View style={styles.menuButton}>
                     <TouchableOpacity style={styles.button} onPress={() => {
-                        props.navigation.goBack()
+                        props.navigation.navigate("Menu")
                     }}
                     >
                         <Ionicons size={60} name={'menu'} color='black' />
@@ -95,6 +95,11 @@ const EditUserDataScreen = props => {
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>E-mail</Text>
                     <TextInput style={styles.input} onChangeText={text => setEmail(text)} value={email} />
+                </View>
+                <View>
+                    <Button title="Zmień hasło" onPress={() => {
+                        props.navigation.navigate("Password")
+                    }} />
                 </View>
                 <View style={styles.save}>
                     <Button title="Zapisz" onPress={() => { 
