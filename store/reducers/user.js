@@ -1,5 +1,5 @@
 import User from "../../models/user";
-import { CREATE_USER, UPDATE_USER, SET_USERS, UPDATE_USER_PASSWORD } from "../actions/user";
+import { CREATE_USER, UPDATE_USER, SET_USERS, UPDATE_USER_PASSWORD, SEND_INVITATION, ACCEPT_INVITATION, DECLINE_INVITATION, DELETE_FRIEND } from "../actions/user";
 
 const initialState = {
     userId: null,
@@ -7,8 +7,8 @@ const initialState = {
     users: []
 };
 
-export default ( state = initialState, action ) => {
-    switch (action.type){
+export default (state = initialState, action) => {
+    switch (action.type) {
         case SET_USERS:
             const allUsers = action.users;
             return {
@@ -24,7 +24,9 @@ export default ( state = initialState, action ) => {
                 action.user.lastname,
                 action.user.email,
                 action.user.username,
-                action.user.friends
+                action.user.friends,
+                action.user.newFriends,
+                action.user.awaitingFriends
             );
             return {
                 ...state,
@@ -40,11 +42,13 @@ export default ( state = initialState, action ) => {
                 action.user.lastname,
                 action.user.email,
                 action.user.username,
-                action.user.friends
+                action.user.friends,
+                action.user.newFriends,
+                action.user.awaitingFriends
             );
             const updatedUsers = [...state.users];
-            for (key in updatedUsers){
-                if(updatedUsers[key].authId === action.user.authId){
+            for (key in updatedUsers) {
+                if (updatedUsers[key].authId === action.user.authId) {
                     updatedUsers[key] = updatedUser;
                 }
             }
@@ -57,6 +61,34 @@ export default ( state = initialState, action ) => {
         case UPDATE_USER_PASSWORD:
             return {
                 ...state,
+            }
+        case SEND_INVITATION:
+            return {
+                ...state,
+                userId: state.userId,
+                dbname: state.dbname,
+                users: action.users
+            }
+        case ACCEPT_INVITATION:
+            return {
+                ...state,
+                userId: state.userId,
+                dbname: state.dbname,
+                users: action.users
+            }
+        case DECLINE_INVITATION:
+            return {
+                ...state,
+                userId: state.userId,
+                dbname: state.dbname,
+                users: action.users
+            }
+        case DELETE_FRIEND:
+            return {
+                ...state,
+                userId: state.userId,
+                dbname: state.dbname,
+                users: action.users
             }
         default:
             return state;

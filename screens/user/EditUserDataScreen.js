@@ -69,7 +69,9 @@ const EditUserDataScreen = props => {
                             lastName.toString(),
                             email.toString(),
                             actuallUser.username,
-                            actuallUser.friends
+                            actuallUser.friends,
+                            actuallUser.newFriends,
+                            actuallUser.awaitingFriends,
                         ));
                     } catch(err) {
                         setError(err.message);

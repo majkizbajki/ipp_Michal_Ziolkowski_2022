@@ -12,6 +12,11 @@ const MenuScreen = props => {
                     props.navigation.navigate('UserData');
                 }} />
             </View>
+            <View>
+                <Button title="Znajomi" onPress={() => {
+                    props.navigation.navigate('Friends');
+                }} />
+            </View>
         </View>
     );
 };
