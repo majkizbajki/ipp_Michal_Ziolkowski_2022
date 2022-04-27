@@ -13,6 +13,11 @@ const MenuScreen = props => {
                 }} />
             </View>
             <View>
+                <Button title="Listy zakupów" onPress={() => {
+                    props.navigation.navigate('Lists');
+                }} />
+            </View>
+            <View>
                 <Button title="Znajomi" onPress={() => {
                     props.navigation.navigate('Friends');
                 }} />

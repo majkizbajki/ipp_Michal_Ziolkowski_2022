@@ -8,6 +8,9 @@ import FriendsScreen from '../screens/friends/FriendsScreen';
 import MenuScreen from '../screens/menu/MenuScreen';
 import AuthScreen from '../screens/user/AuthScreen';
 import UpdatePasswordScreen from '../screens/user/UpdatePasswordScreen';
+import CreateShoppingListScreen from '../screens/list/CreateShoppingListScreen';
+import ShoppingListDetailsScreen from '../screens/list/ShoppingListDetailsScreen';
+import AddProduct from '../screens/list/AddProduct';
 
 const defaultNavOptions = {
     headerShown: false,
@@ -26,10 +29,19 @@ const EditUserDataNavigator = createStackNavigator({
     defaultNavigationOptions: defaultNavOptions,
 });
 
+const ShopListNavigator = createStackNavigator({
+    ShopListMainWindow: ShoppingListsScreen,
+    ShopListDetails: ShoppingListDetailsScreen,
+    CreateShopList: CreateShoppingListScreen,
+    AddProduct: AddProduct,
+},{
+    defaultNavigationOptions: defaultNavOptions,
+});
+
 const MenuNavigator = createStackNavigator({
     Menu: MenuScreen,
     UserData: EditUserDataNavigator,
-    List: ShoppingListsScreen,
+    Lists: ShopListNavigator,
     Friends: FriendsScreen,
 },{
     defaultNavigationOptions: defaultNavOptions,

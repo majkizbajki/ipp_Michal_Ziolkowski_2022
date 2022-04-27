@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, FlatList } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -6,8 +6,10 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as userActions from '../../store/actions/user';
 
 const FriendsScreen = props => {
+    
     const [isLoading, setIsLoading] = useState(false);
-    const [isReloading, setIsReloading] = useState();
+    const [isReloading, setIsReloading] = useState(false);
+    const [intervalSwitch, setIntervalSwitch] = useState(false);
     const [error, setError] = useState();
     const dispatch = useDispatch();
 
@@ -29,6 +31,7 @@ const FriendsScreen = props => {
         await dispatch(userActions.fetchUsers()).then(() => {
             setInvitationFriends(actuallUser.newFriends);
             setAlreadyInvitedFriends(actuallUser.awaitingFriends);
+            setIntervalSwitch(!intervalSwitch);
             setIsLoading(false);
         });
     }, [dispatch, isReloading]);
@@ -89,10 +92,13 @@ const FriendsScreen = props => {
     useEffect(() => {
         const toggle = setInterval(() => {
             setIsReloading(!isReloading);
-        }, 100);
-
-        return () => clearInterval(toggle);
-    })
+        }, 1000);
+        
+        return () => {
+            clearInterval(toggle);
+            setIntervalSwitch(!intervalSwitch);
+        }
+    }, [intervalSwitch]);
 
     return (
         <View style={styles.screen}>
