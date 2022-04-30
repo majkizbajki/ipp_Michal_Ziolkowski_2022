@@ -69,7 +69,9 @@ const ShoppingListDetailsScreen = props => {
                 <View>
                     <FlatList data={productsList} keyExtractor={item => item.productId} renderItem={itemData => (
                         <View>
-                            <TouchableOpacity onPress={() => { }}>
+                            <TouchableOpacity onPress={() => {
+                                props.navigation.navigate("AddProduct", { "list": shoppingListNav, "product": itemData.item });
+                            }}>
                                 <View>
                                     <RoundedCheckbox text="✓" checkedColor="green" checkedTextColor="#000" uncheckedTextColor="#000" onPress={() => {}} />
                                 </View>

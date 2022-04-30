@@ -27,6 +27,8 @@ const AddProduct = props => {
 
     const [productsList, setProductsList] = useState([]);
 
+    const productNav = props.navigation.state.params.product;
+
     useEffect(async () => {
         setIsLoading(true);
         await dispatch(shopListsActions.fetchLists()).then(() => {
@@ -51,6 +53,61 @@ const AddProduct = props => {
         }
     }, [intervalSwitch]);
 
+    if (productNav !== undefined) {
+        useEffect(() => {
+            if (productNav.amount.split(" ")[1] === "l") {
+                setAmountType("l");
+                setAmout(productNav.amount);
+            }
+            else if (productNav.amount.split(" ")[1] === "kg") {
+                setAmountType("kg");
+                setAmout(productNav.amount);
+            }
+            else if (productNav.amount.split(" ")[1] === "szt.") {
+                setAmountType("szt.");
+                setAmout(productNav.amount);
+            }
+
+            switch (productNav.category) {
+                case "owoce":
+                    setCategory("owoce");
+                    break;
+                case "warzywa":
+                    setCategory("warzywa");
+                    break;
+                case "mięso":
+                    setCategory("mięso");
+                    break;
+                case "ryby":
+                    setCategory("ryby");
+                    break;
+                case "nabiał":
+                    setCategory("nabiał");
+                    break;
+                case "słodycze":
+                    setCategory("słodycze");
+                    break;
+                case "napoje":
+                    setCategory("napoje");
+                    break;
+                case "fast food":
+                    setCategory("fast food");
+                    break;
+                case "chemia":
+                    setCategory("chemia");
+                    break;
+                case "alkohol":
+                    setCategory("alkohol");
+                    break;
+                case "inne":
+                    setCategory("inne");
+                    break;
+                default:
+                    setCategory("");
+            }
+        }, []);
+    }
+
     return (
         <View style={styles.screen}>
             <View style={styles.topBar}>
@@ -63,38 +120,45 @@ const AddProduct = props => {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.titleContainer}>
-                    <Text style={{ fontSize: 22 }}>Dodaj produkt do listy</Text>
+                    <Text style={{ fontSize: 22 }}>{productNav === undefined ? "Dodaj produkt do listy" : "Edytuj produkt z listy"}</Text>
                 </View>
             </View>
             <View style={styles.searchProduct}>
-                <TextInput style={styles.input} placeholder="Wyszukaj produkt lub wpisz jego nazwę" onChangeText={text => {
-                    setSearchProduct(text);
-                    if (text.length == 0) {
-                        isSearchProductList(false);
-                    } else {
-                        isSearchProductList(true);
-                    }
-                }} />
+                {productNav === undefined ? (
+                    <TextInput style={styles.input} placeholder="Wyszukaj produkt lub wpisz jego nazwę" onChangeText={text => {
+                        setSearchProduct(text);
+                        if (text.length == 0) {
+                            isSearchProductList(false);
+                        } else {
+                            isSearchProductList(true);
+                        }
+                    }} />
+                ) : (
+                    <Text>{productNav.name}</Text>
+                )}
             </View>
             <View>
                 <Text>Ilość</Text>
                 <View>
                     <Button title="kilogramy" color={amountType == "kg" ? "red" : ""} onPress={() => {
                         setAmountType("kg");
+                        setAmout(amount + " " + amountType);
                     }} />
                 </View>
                 <View>
                     <Button title="litry" color={amountType == "l" ? "red" : ""} onPress={() => {
                         setAmountType("l")
+                        setAmout(amount + " " + amountType);
                     }} />
                 </View>
                 <View>
                     <Button title="sztuki" color={amountType == "szt." ? "red" : ""} onPress={() => {
                         setAmountType("szt.")
+                        setAmout(amount + " " + amountType);
                     }} />
                 </View>
                 <View>
-                    <TextInput editable={amountType == "" ? false : true} placeholder={amountType == "" ? "Wybierz jednostkę miary" : "Wpisz ilość"} keyboardType="decimal-pad" onChangeText={(text) => {
+                    <TextInput defaultValue={productNav === undefined ? null : productNav.amount.split(" ")[0]} placeholder={amountType == "" ? "Wybierz jednostkę miary" : "Wpisz ilość"} keyboardType="decimal-pad" onChangeText={(text) => {
                         let re = /\d+\.{0,1}\d{0,2}/;
                         let number = text.replace(/[, -]/g, ".")
                         if (number.match(re) !== null) {
@@ -164,22 +228,38 @@ const AddProduct = props => {
                 </ScrollView>
             </View>
             <View>
-                <Button title="Dodaj" onPress={async () => {
-                    if (searchProduct !== "" && amount !== "" && category !== "") {
-                        if (productsList.filter(list => list.productId === searchProduct.toLowerCase()).length === 0 || productsList.filter(list => list.name.toLowerCase() === searchProduct.toLowerCase()).length === 0) {
-                            await dispatch(shopListsActions.addProduct(shoppingListNav.title, searchProduct.toLowerCase(), searchProduct, amount, category)).then(() => {
+                {productNav === undefined ?
+                    (<Button title="Dodaj" onPress={async () => {
+                        if (searchProduct !== "" && amount !== "" && category !== "") {
+                            if (productsList.filter(list => list.productId === searchProduct.toLowerCase()).length === 0 || productsList.filter(list => list.name.toLowerCase() === searchProduct.toLowerCase()).length === 0) {
+                                await dispatch(shopListsActions.addProduct(shoppingListNav.title, searchProduct.toLowerCase(), searchProduct, amount, category)).then(() => {
+                                    dispatch(shopListsActions.fetchLists());
+                                    props.navigation.navigate("ShopListDetails", { "list": shoppingListNav });
+                                });
+                            }
+                            else {
+                                Alert.alert("Ups! Wystąpił błąd!", "Produkt o tej nazwie jest już na liście.", [{ text: "OK", onPress: () => { props.navigation.navigate("ShopListDetails", { "list": shoppingListNav }); } }]);
+                            }
+                        }
+                        else {
+                            Alert.alert("Ups! Wystąpił błąd!", "Niepoprawnie wprowadzone dane produktu.", [{ text: "OK" }]);
+                        }
+                    }} />) :
+                    (<Button title="Edytuj" onPress={async () => {
+                        let re = /\d+\.{0,1}\d{0,2}/;
+                        let number = amount.replace(/[, -]/g, ".")
+                        if (amount !== "" && category !== "" && number.match(re) !== null) {
+                            setAmout(number.match(re)[0] + " " + amountType);
+                            await dispatch(shopListsActions.updateProduct(shoppingListNav.title, productNav, amount, category)).then(() => {
                                 dispatch(shopListsActions.fetchLists());
                                 props.navigation.navigate("ShopListDetails", { "list": shoppingListNav });
                             });
                         }
                         else {
-                            Alert.alert("Ups! Wystąpił błąd!", "Produkt o tej nazwie jest już na liście.", [{ text: "OK", onPress: () => { props.navigation.navigate("ShopListDetails", { "list": shoppingListNav }); } }]);
+                            Alert.alert("Ups! Wystąpił błąd!", "Niepoprawnie wprowadzone dane produktu.", [{ text: "OK" }]);
                         }
-                    }
-                    else {
-                        Alert.alert("Ups! Wystąpił błąd!", "Niepoprawnie wprowadzone dane produktu.", [{ text: "OK" }]);
-                    }
-                }} />
+                    }} />)
+                }
             </View>
         </View>
     )

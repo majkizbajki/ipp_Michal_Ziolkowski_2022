@@ -5,6 +5,7 @@ export const CREATE_LIST = "CREATE_LIST";
 export const SET_LISTS = "SET_LISTS";
 export const DELETE_LIST = "DELETE_LIST";
 export const ADD_PRODUCT = "ADD_PRODUCT";
+export const EDIT_PRODUCT = "EDIT_PRODUCT";
 export const DELETE_PRODUCT = "DELETE_PRODUCT";
 
 export const fetchLists = () => {
@@ -146,6 +147,57 @@ export const addProduct = (listTitle, productId, productName, amount, category) 
         }
 
         dispatch({ type: ADD_PRODUCT });
+    };
+}
+
+export const updateProduct = (listTitle, product, amount, category) => {
+    return async (dispatch, getState) => {
+        const userId = getState().auth.userId;
+        try {
+            const responseLists = await fetch('https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists.json');
+
+            if (!responseLists.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+
+            const resListsData = await responseLists.json();
+            
+            var listId;
+            for (let key in resListsData) {
+                if (resListsData[key].title === listTitle && resListsData[key].creatorId === userId) {
+                    listId = key;
+                }
+            }
+
+            var productId;
+            for (let productKey in resListsData[listId].products){
+                if (resListsData[listId].products[productKey].productId === product.productId){
+                    productId = productKey;
+                }
+            }
+
+
+            const responseUpdate = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists/${listId}/products/${productId}.json`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    category: category
+                })
+            });
+
+            if (!responseUpdate.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+
+        }
+        catch (err) {
+            throw err;
+        }
+
+        dispatch({ type: EDIT_PRODUCT });
     };
 }
 
