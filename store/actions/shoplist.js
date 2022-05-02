@@ -7,6 +7,7 @@ export const DELETE_LIST = "DELETE_LIST";
 export const ADD_PRODUCT = "ADD_PRODUCT";
 export const EDIT_PRODUCT = "EDIT_PRODUCT";
 export const DELETE_PRODUCT = "DELETE_PRODUCT";
+export const ADD_OR_DELETE_MEMBER = "ADD_OR_DELETE_MEMBER";
 
 export const fetchLists = () => {
     return async (dispatch) => {
@@ -241,5 +242,47 @@ export const deleteProduct = (listTitle, product) => {
         }
 
         dispatch({ type: DELETE_PRODUCT });
+    };
+}
+
+export const addOrDeleteMember = (listTitle, membersList) => {
+    return async (dispatch, getState) => {
+        const userId = getState().auth.userId;
+        try {
+            const responseLists = await fetch('https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists.json');
+
+            if (!responseLists.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+
+            const resListsData = await responseLists.json();
+            
+            var listId;
+            for (let key in resListsData) {
+                if (resListsData[key].title === listTitle && resListsData[key].creatorId === userId) {
+                    listId = key;
+                }
+            }
+
+            const responseAddMember = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists/${listId}.json`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    members: membersList
+                })
+            });
+
+            if (!responseAddMember.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+
+        }
+        catch (err) {
+            throw err;
+        }
+
+        dispatch({ type: ADD_OR_DELETE_MEMBER });
     };
 }

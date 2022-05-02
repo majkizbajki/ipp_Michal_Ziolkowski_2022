@@ -18,16 +18,18 @@ const ShoppingListDetailsScreen = props => {
 
     const shoppingListNav = props.navigation.state.params.list;
     const allLists = useSelector(state => state.shopLists);
-    const shoppingList = allLists["shopList"].filter(list => list.creatorId === userId).filter(list => list.name === shoppingListNav["name"]);
+    const shoppingList = allLists["shopList"].filter(list => list.members.indexOf(userId) >= 0).filter(list => list.name === shoppingListNav["name"]);
 
     const [productsList, setProductsList] = useState([]);
 
     useEffect(async () => {
         setIsLoading(true);
         await dispatch(shopListsActions.fetchLists()).then(() => {
-            const productsArray = [];
-            for (const key in shoppingList[0].products){
-                productsArray.push(shoppingList[0].products[key]);
+            let productsArray = [];
+            if(shoppingList[0].products !== undefined){
+                for (const key in shoppingList[0].products) {
+                    productsArray.push(shoppingList[0].products[key]);
+                }
             }
             setProductsList(productsArray);
             setIntervalSwitch(!intervalSwitch);
@@ -67,30 +69,38 @@ const ShoppingListDetailsScreen = props => {
                     <Text>Wyszukaj produkt</Text>
                 </TouchableOpacity>
                 <View>
-                    <FlatList data={productsList} keyExtractor={item => item.productId} renderItem={itemData => (
-                        <View>
-                            <TouchableOpacity onPress={() => {
-                                props.navigation.navigate("AddProduct", { "list": shoppingListNav, "product": itemData.item });
-                            }}>
-                                <View>
-                                    <RoundedCheckbox text="✓" checkedColor="green" checkedTextColor="#000" uncheckedTextColor="#000" onPress={() => {}} />
-                                </View>
-                                <Text>{itemData.item.name}</Text>
-                                <Text>{itemData.item.amount}</Text>
-                                <Text>{itemData.item.price}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={ async () => {
-                                setIsLoading(true);
-                                await dispatch(shopListsActions.deleteProduct(shoppingListNav["title"],itemData.item)).then(() => {
-                                    dispatch(shopListsActions.fetchLists());
-                                    setIsLoading(false);
-                                })
-                            }}>
-                                <Ionicons name="trash-bin-outline" size={40} />
-                            </TouchableOpacity>
-                        </View>
-                    )} />
+                    {productsList.length > 0 ? 
+                        <FlatList data={productsList} keyExtractor={item => item.productId} renderItem={itemData => (
+                            <View>
+                                <TouchableOpacity onPress={() => {
+                                    props.navigation.navigate("AddProduct", { "list": shoppingListNav, "product": itemData.item });
+                                }}>
+                                    <View>
+                                        <RoundedCheckbox text="✓" checkedColor="green" checkedTextColor="#000" uncheckedTextColor="#000" onPress={() => { }} />
+                                    </View>
+                                    <Text>{itemData.item.name}</Text>
+                                    <Text>{itemData.item.amount}</Text>
+                                    <Text>{itemData.item.price}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={async () => {
+                                    setIsLoading(true);
+                                    await dispatch(shopListsActions.deleteProduct(shoppingListNav["title"], itemData.item)).then(() => {
+                                        dispatch(shopListsActions.fetchLists());
+                                        setIsLoading(false);
+                                    })
+                                }}>
+                                    <Ionicons name="trash-bin-outline" size={40} />
+                                </TouchableOpacity>
+                            </View>
+                        )} /> :
+                        null
+                    }
                 </View>
+            </View>
+            <View>
+                <Button title="Sprawdź z kim robisz zakupy" onPress={() => {
+                    props.navigation.navigate("EditShoppingList", { "list": shoppingListNav });
+                }} />
             </View>
             <View>
                 <Button title="Usuń" onPress={() => {
@@ -105,6 +115,11 @@ const ShoppingListDetailsScreen = props => {
                         },
                         { text: "Nie" }
                     ])
+                }} />
+            </View>
+            <View>
+                <Button title="Udostępnij" onPress={() => {
+                    props.navigation.navigate("ShareShoppingList", { "list": shoppingListNav });
                 }} />
             </View>
         </View>

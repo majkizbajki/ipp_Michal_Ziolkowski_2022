@@ -30,7 +30,7 @@ const ShoppingListsScreen = props => {
     useEffect(() => {
         const userListsObject = {"shopList": []};
         for (let i=0;i<allLists.shopList.length; i++){
-            if(allLists.shopList[i].creatorId === actuallUser.authId){
+            if(allLists.shopList[i].creatorId === actuallUser.authId || allLists.shopList[i].members.indexOf(actuallUser.authId) >= 0 ){
                 userListsObject.shopList.push(allLists.shopList[i]);
             }
         }
