@@ -8,6 +8,7 @@ export const ADD_PRODUCT = "ADD_PRODUCT";
 export const EDIT_PRODUCT = "EDIT_PRODUCT";
 export const DELETE_PRODUCT = "DELETE_PRODUCT";
 export const ADD_OR_DELETE_MEMBER = "ADD_OR_DELETE_MEMBER";
+export const EDIT_PRODUCT_PRICE = "EDIT_PRODUCT_PRICE";
 
 export const fetchLists = () => {
     return async (dispatch) => {
@@ -134,7 +135,8 @@ export const addProduct = (listTitle, productId, productName, amount, category) 
                     name: productName,
                     price: null,
                     amount: amount,
-                    category: category
+                    category: category,
+                    buyer: null
                 })
             });
 
@@ -284,5 +286,95 @@ export const addOrDeleteMember = (listTitle, membersList) => {
         }
 
         dispatch({ type: ADD_OR_DELETE_MEMBER });
+    };
+}
+
+export const editProductPrice = (listTitle, listCreator, product, productPrice, buy) => {
+    return async (dispatch, getState) => {
+        const userId = getState().auth.userId;
+        try {
+            const responseLists = await fetch('https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists.json');
+
+            if (!responseLists.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+
+            const resListsData = await responseLists.json();
+            
+            var listId;
+            for (let key in resListsData) {
+                if (resListsData[key].title === listTitle && resListsData[key].creatorId === listCreator) {
+                    listId = key;
+                }
+            }
+            
+            var prodId;
+            for (let prod in resListsData[listId].products) {
+                if (resListsData[listId].products[prod].productId === product.productId) {
+                    prodId = prod;
+                }
+            }
+
+            const responseList = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists/${listId}.json`);
+            if (!responseList.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+
+            const resList = await responseList.json();
+
+            var setPrice;
+            var setBuyer;
+            var setSummary = parseFloat(resList.summary);
+
+            if(buy === "add"){
+                setPrice = parseFloat(productPrice);
+                setBuyer = userId;
+                setSummary = parseFloat(setSummary) + parseFloat(productPrice);
+            }
+            else if (buy === "edit"){
+                setPrice = parseFloat(productPrice);
+                setBuyer = userId;
+                setSummary = parseFloat(setSummary) + (parseFloat(productPrice) - parseFloat(product.price));
+            }
+            else if (buy === "remove"){
+                setPrice = null;
+                setBuyer = null;
+                setSummary = parseFloat(setSummary) - parseFloat(product.price);
+            }
+
+            const responseEditPrice = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists/${listId}/products/${prodId}.json`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    price: setPrice,
+                    buyer: setBuyer
+                })
+            });
+
+            if (!responseEditPrice.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+
+            const responseEditSummary = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists/${listId}.json`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    summary: setSummary
+                })
+            });
+
+            if (!responseEditSummary.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+        }
+        catch (err) {
+            throw err;
+        }
+
+        dispatch({ type: EDIT_PRODUCT_PRICE });
     };
 }

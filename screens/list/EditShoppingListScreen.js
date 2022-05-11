@@ -17,7 +17,7 @@ const EditShoppingListScreen = props => {
 
     const shoppingListNav = props.navigation.state.params.list;
     const allLists = useSelector(state => state.shopLists);
-    const shoppingList = allLists["shopList"].filter(list => list.members.indexOf(userId) >= 0).filter(list => list.name === shoppingListNav["name"]);
+    const shoppingList = allLists["shopList"].filter(list => list.members.indexOf(userId) >= 0).filter(list => list.title === shoppingListNav["title"]);
 
     const [membersList, setMembersList] = useState([]);
 
@@ -37,7 +37,7 @@ const EditShoppingListScreen = props => {
     useEffect(() => {
         const toggle = setInterval(() => {
             setIsReloading(!isReloading);
-        }, 1000);
+        }, 500);
 
         return () => {
             clearInterval(toggle);
@@ -63,7 +63,15 @@ const EditShoppingListScreen = props => {
 }
 
 const styles = StyleSheet.create({
-
+    screen: {
+        flex: 1,
+    },
+    topBar: {
+        width: '100%',
+        flexDirection: 'row',
+        paddingVertical: 50,
+        paddingHorizontal: 10,
+    },
 });
 
 export default EditShoppingListScreen;

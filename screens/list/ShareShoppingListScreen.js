@@ -25,7 +25,7 @@ const ShareShoppingListScreen = props => {
 
     useEffect(async () => {
         setIsLoading(true);
-        await dispatch(shopListsActions.fetchLists());
+        await dispatch(shopListsActions.fetchLists()).then(() => {});
         await dispatch(userActions.fetchUsers()).then(() => {
             let friendsArray = [user];
             for (const key in allUsers.users) {
@@ -42,7 +42,7 @@ const ShareShoppingListScreen = props => {
     useEffect(() => {
         const toggle = setInterval(() => {
             setIsReloading(!isReloading);
-        }, 1000);
+        }, 500);
 
         return () => {
             clearInterval(toggle);
@@ -73,7 +73,7 @@ const ShareShoppingListScreen = props => {
                                         Alert.alert("Usuń z listy zakupów", `Czy na pewno usunąć ${itemData.item.username} z tej listy zakupów`, [{
                                             text: "Tak", onPress: async () => {
                                                 let membersArray = shoppingList[0].members;
-                                                membersArray.splice(membersArray.indexOf(itemData.item.authId));
+                                                membersArray.splice(membersArray.indexOf(itemData.item.authId), 1);
                                                 await dispatch(shopListsActions.addOrDeleteMember(shoppingListNav.title, membersArray)).then(() => {
                                                     dispatch(shopListsActions.fetchLists());
                                                 });

@@ -77,15 +77,6 @@ const ListDetailsScreen = props => {
                     <View>
                         <Text>{itemData.item.firstname} {itemData.item.lastname} ({itemData.item.username})</Text>
                         {membersList.indexOf(itemData.item.authId) >= 0 ?
-                            // <TouchableOpacity onPress={() => {
-                            //     setIsReloading(true);
-                            //     let membersArray = membersList;
-                            //     membersArray.splice(membersArray.indexOf(itemData.item.authId));
-                            //     setMembersList(membersArray);
-                            //     setIsReloading(false);
-                            // }}>
-                            //     <AntDesign name="deleteusergroup" size={40} />
-                            // </TouchableOpacity>
                             <TouchableOpacity onPress={async () => {
                                 setIsReloading(true);
                                 await setMembersList(membersList.filter(item => item !== itemData.item.authId));

@@ -40,7 +40,7 @@ const ShoppingListsScreen = props => {
     useEffect(() => {
         const toggle = setInterval(() => {
             setIsReloading(!isReloading);
-        }, 100);
+        }, 500);
 
         return () => clearInterval(toggle);
     });

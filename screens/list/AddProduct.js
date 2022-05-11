@@ -23,7 +23,7 @@ const AddProduct = props => {
 
     const shoppingListNav = props.navigation.state.params.list;
     const allLists = useSelector(state => state.shopLists);
-    const shoppingList = allLists["shopList"].filter(list => list.creatorId === userId).filter(list => list.name === shoppingListNav["name"]);
+    const shoppingList = allLists["shopList"].filter(list => list.members.indexOf(userId) >= 0).filter(list => list.title === shoppingListNav["title"]);
 
     const [productsList, setProductsList] = useState([]);
 
@@ -40,12 +40,13 @@ const AddProduct = props => {
             setIntervalSwitch(!intervalSwitch);
             setIsLoading(false);
         });
+        console.log(shoppingList);
     }, [dispatch, isReloading]);
 
     useEffect(() => {
         const toggle = setInterval(() => {
             setIsReloading(!isReloading);
-        }, 1000);
+        }, 500);
 
         return () => {
             clearInterval(toggle);
