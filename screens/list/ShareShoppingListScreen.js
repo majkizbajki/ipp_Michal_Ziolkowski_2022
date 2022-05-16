@@ -25,7 +25,7 @@ const ShareShoppingListScreen = props => {
 
     useEffect(async () => {
         setIsLoading(true);
-        await dispatch(shopListsActions.fetchLists()).then(() => {});
+        await dispatch(shopListsActions.fetchLists()).then(() => { });
         await dispatch(userActions.fetchUsers()).then(() => {
             let friendsArray = [user];
             for (const key in allUsers.users) {
@@ -42,7 +42,7 @@ const ShareShoppingListScreen = props => {
     useEffect(() => {
         const toggle = setInterval(() => {
             setIsReloading(!isReloading);
-        }, 500);
+        }, 100);
 
         return () => {
             clearInterval(toggle);
@@ -68,30 +68,30 @@ const ShareShoppingListScreen = props => {
                     <View>
                         <Text>{itemData.item.firstname} {itemData.item.lastname} ({itemData.item.username})</Text>
                         {user.authId === shoppingList[0].creatorId ?
-                                shoppingList[0].members.indexOf(itemData.item.authId) >= 0 ?
-                                    <TouchableOpacity onPress={() => {
-                                        Alert.alert("Usuń z listy zakupów", `Czy na pewno usunąć ${itemData.item.username} z tej listy zakupów`, [{
-                                            text: "Tak", onPress: async () => {
-                                                let membersArray = shoppingList[0].members;
-                                                membersArray.splice(membersArray.indexOf(itemData.item.authId), 1);
-                                                await dispatch(shopListsActions.addOrDeleteMember(shoppingListNav.title, membersArray)).then(() => {
-                                                    dispatch(shopListsActions.fetchLists());
-                                                });
-                                            }
-                                        }, { text: "Nie" }])
-                                    }}>
-                                        <AntDesign name="deleteusergroup" size={40} />
-                                    </TouchableOpacity> 
+                            shoppingList[0].members.indexOf(itemData.item.authId) >= 0 ?
+                                <TouchableOpacity onPress={() => {
+                                    Alert.alert("Usuń z listy zakupów", `Czy na pewno usunąć ${itemData.item.username} z tej listy zakupów`, [{
+                                        text: "Tak", onPress: async () => {
+                                            let membersArray = shoppingList[0].members;
+                                            membersArray.splice(membersArray.indexOf(itemData.item.authId), 1);
+                                            await dispatch(shopListsActions.addOrDeleteMember(shoppingListNav.title, membersArray)).then(() => {
+                                                dispatch(shopListsActions.fetchLists());
+                                            });
+                                        }
+                                    }, { text: "Nie" }])
+                                }}>
+                                    <AntDesign name="deleteusergroup" size={40} />
+                                </TouchableOpacity>
                                 :
-                                    <TouchableOpacity onPress={async () => {
-                                        let membersArray = shoppingList[0].members;
-                                        membersArray.push(itemData.item.authId);
-                                        await dispatch(shopListsActions.addOrDeleteMember(shoppingListNav.title, membersArray)).then(() => {
-                                            dispatch(shopListsActions.fetchLists());
-                                        });
-                                    }}>
-                                        <AntDesign name="addusergroup" size={40} />
-                                    </TouchableOpacity>
+                                <TouchableOpacity onPress={async () => {
+                                    let membersArray = shoppingList[0].members;
+                                    membersArray.push(itemData.item.authId);
+                                    await dispatch(shopListsActions.addOrDeleteMember(shoppingListNav.title, membersArray)).then(() => {
+                                        dispatch(shopListsActions.fetchLists());
+                                    });
+                                }}>
+                                    <AntDesign name="addusergroup" size={40} />
+                                </TouchableOpacity>
                             :
                             <View>
 

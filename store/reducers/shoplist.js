@@ -1,5 +1,5 @@
 import shopList from "../../models/shopList";
-import { CREATE_LIST, SET_LISTS, DELETE_LIST, ADD_PRODUCT, DELETE_PRODUCT, EDIT_PRODUCT, ADD_OR_DELETE_MEMBER, EDIT_PRODUCT_PRICE } from "../actions/shoplist";
+import { CREATE_LIST, SET_LISTS, DELETE_LIST, ADD_PRODUCT, EDIT_LIST, DELETE_PRODUCT, EDIT_PRODUCT, ADD_OR_DELETE_MEMBER, EDIT_PRODUCT_PRICE } from "../actions/shoplist";
 
 const initialState = {
     shopList: []
@@ -14,6 +14,11 @@ export default (state = initialState, action) => {
                 shopList: state.shopList.concat(newList),
             };
         case SET_LISTS:
+            return {
+                ...state,
+                shopList: action.lists,
+            };
+        case EDIT_LIST:
             return {
                 ...state,
                 shopList: action.lists,

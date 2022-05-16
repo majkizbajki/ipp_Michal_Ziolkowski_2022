@@ -40,13 +40,12 @@ const AddProduct = props => {
             setIntervalSwitch(!intervalSwitch);
             setIsLoading(false);
         });
-        console.log(shoppingList);
     }, [dispatch, isReloading]);
 
     useEffect(() => {
         const toggle = setInterval(() => {
             setIsReloading(!isReloading);
-        }, 500);
+        }, 100);
 
         return () => {
             clearInterval(toggle);

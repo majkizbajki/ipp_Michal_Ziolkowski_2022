@@ -37,8 +37,7 @@ const ShopListNavigator = createStackNavigator({
     CreateShopList: CreateShoppingListScreen,
     AddProduct: AddProduct,
     EditShoppingList: EditShoppingListScreen,
-    ShareShoppingList: ShareShoppingListScreen
-
+    ShareShoppingList: ShareShoppingListScreen,
 },{
     defaultNavigationOptions: defaultNavOptions,
 });

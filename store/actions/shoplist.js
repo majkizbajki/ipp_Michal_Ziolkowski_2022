@@ -3,6 +3,7 @@ import product from "../../models/product";
 
 export const CREATE_LIST = "CREATE_LIST";
 export const SET_LISTS = "SET_LISTS";
+export const EDIT_LIST = "EDIT_LIST";
 export const DELETE_LIST = "DELETE_LIST";
 export const ADD_PRODUCT = "ADD_PRODUCT";
 export const EDIT_PRODUCT = "EDIT_PRODUCT";
@@ -67,6 +68,57 @@ export const createList = (title, members = []) => {
         });
     };
 };
+
+export const updateList = (listTitle, newListTitle) => {
+    return async (dispatch, getState) => {
+        const userId = getState().auth.userId;
+        try {
+            const responseLists = await fetch('https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists.json');
+
+            if (!responseLists.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+
+            const resListsData = await responseLists.json();
+            
+            var listId;
+            for (let key in resListsData) {
+                if (resListsData[key].title === listTitle && resListsData[key].creatorId === userId) {
+                    listId = key;
+                }
+            }
+
+
+            const responseUpdate = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists/${listId}.json`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: newListTitle
+                })
+            });
+
+            if (!responseUpdate.ok) {
+                throw new Error("Coś poszło nie tak!");
+            }
+
+            const responseUpdateLists = await fetch('https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists.json')
+            const resListsUpdate = await responseUpdateLists.json();
+            const allLists = [];
+
+            for (const key in resListsUpdate) {
+                allLists.push(new shopList(resListsUpdate[key].title, resListsUpdate[key].creatorId, resListsUpdate[key].members, resListsUpdate[key].products, resListsUpdate[key].summary));
+            }
+
+            dispatch({ type: EDIT_LIST, lists: allLists });
+
+        }
+        catch (err) {
+            throw err;
+        }
+    };
+}
 
 export const deleteList = (listTitle) => {
     return async (dispatch, getState) => {
@@ -194,6 +246,8 @@ export const updateProduct = (listTitle, product, amount, category) => {
             if (!responseUpdate.ok) {
                 throw new Error("Coś poszło nie tak!");
             }
+
+
 
         }
         catch (err) {

@@ -25,6 +25,8 @@ const ShoppingListDetailsScreen = props => {
     const [checkProduct, setCheckProduct] = useState(false);
     const [checkedProduct, setCheckedProduct] = useState();
 
+    const [newListName, setNewListName] = useState(props.navigation.getParam("newListTitle", shoppingList[0].title));
+
     useEffect(async () => {
         setIsLoading(true);
         await dispatch(shopListsActions.fetchLists()).then(() => {
@@ -43,7 +45,7 @@ const ShoppingListDetailsScreen = props => {
     useEffect(() => {
         const toggle = setInterval(() => {
             setIsReloading(!isReloading);
-        }, 500);
+        }, 100);
 
         return () => {
             clearInterval(toggle);
@@ -81,7 +83,7 @@ const ShoppingListDetailsScreen = props => {
                     <View>
                         <Text>{shoppingListNav["title"]}</Text>
                     </View>
-                    <View>
+                    <View style={styles.productsList}>
                         <TouchableOpacity onPress={() => {
                             props.navigation.navigate("AddProduct", { "list": shoppingListNav });
                         }}>
@@ -147,13 +149,13 @@ const ShoppingListDetailsScreen = props => {
                     {shoppingList[0] ?
                         <View>
                             <Text>Podsumowanie:</Text>
-                            <Text>{shoppingList[0].summary > 0 ? shoppingList[0].summary : "0.00"}</Text>
+                            <Text>{shoppingList[0].summary > 0 ? parseFloat(shoppingList[0].summary).toFixed(2) : "0.00"}</Text>
                         </View>
                         :
                         null
                     }
                     <View>
-                        <Button title="Sprawdź rachunek" onPress={() => {
+                        <Button title="Podgląd szczegółów" onPress={() => {
                             props.navigation.navigate("EditShoppingList", { "list": shoppingListNav });
                         }} />
                     </View>
@@ -193,6 +195,10 @@ const styles = StyleSheet.create({
         paddingVertical: 50,
         paddingHorizontal: 10,
     },
+    productsList: {
+        height: "50%",
+        paddingBottom: 20
+    }
 });
 
 export default ShoppingListDetailsScreen;

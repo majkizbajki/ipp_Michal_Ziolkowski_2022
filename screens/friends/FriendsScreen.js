@@ -92,7 +92,7 @@ const FriendsScreen = props => {
     useEffect(() => {
         const toggle = setInterval(() => {
             setIsReloading(!isReloading);
-        }, 1000);
+        }, 100);
         
         return () => {
             clearInterval(toggle);
