@@ -105,7 +105,7 @@ export const updateList = (listTitle, newListTitle) => {
 
             const responseUpdateLists = await fetch('https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists.json')
             const resListsUpdate = await responseUpdateLists.json();
-            const allLists = [];
+            let allLists = [];
 
             for (const key in resListsUpdate) {
                 allLists.push(new shopList(resListsUpdate[key].title, resListsUpdate[key].creatorId, resListsUpdate[key].members, resListsUpdate[key].products, resListsUpdate[key].summary));
@@ -147,8 +147,6 @@ export const deleteList = (listTitle) => {
                 throw new Error("Coś poszło nie tak!");
             }
 
-
-
         }
         catch (err) {
             throw err;
@@ -172,7 +170,7 @@ export const addProduct = (listTitle, productId, productName, amount, category) 
             
             var listId;
             for (let key in resListsData) {
-                if (resListsData[key].title === listTitle && resListsData[key].creatorId === userId) {
+                if (resListsData[key].title === listTitle && resListsData[key].members.filter(member => member === userId).length > 0) {
                     listId = key;
                 }
             }
@@ -219,7 +217,7 @@ export const updateProduct = (listTitle, product, amount, category) => {
             
             var listId;
             for (let key in resListsData) {
-                if (resListsData[key].title === listTitle && resListsData[key].creatorId === userId) {
+                if (resListsData[key].title === listTitle && resListsData[key].members.filter(member => member === userId).length > 0) {
                     listId = key;
                 }
             }
@@ -276,6 +274,8 @@ export const deleteProduct = (listTitle, product) => {
                     listId = key;
                 }
             }
+
+            const listSummary = resListsData[listId].summary;
             
             var prodId;
             for (let prod in resListsData[listId].products) {
@@ -291,6 +291,16 @@ export const deleteProduct = (listTitle, product) => {
             if (!responseDelete.ok) {
                 throw new Error("Coś poszło nie tak!");
             }
+
+            const responseUpdatePrice = await fetch(`https://shopwithme-2d872-default-rtdb.europe-west1.firebasedatabase.app/shoplists/${listId}.json`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    summary: listSummary - product.price
+                })
+            });
 
         }
         catch (err) {
@@ -315,7 +325,7 @@ export const addOrDeleteMember = (listTitle, membersList) => {
             
             var listId;
             for (let key in resListsData) {
-                if (resListsData[key].title === listTitle && resListsData[key].creatorId === userId) {
+                if (resListsData[key].title === listTitle && resListsData[key].members.filter(member => member === userId).length > 0) {
                     listId = key;
                 }
             }

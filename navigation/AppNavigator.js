@@ -11,7 +11,7 @@ import UpdatePasswordScreen from '../screens/user/UpdatePasswordScreen';
 import CreateShoppingListScreen from '../screens/list/CreateShoppingListScreen';
 import ShoppingListDetailsScreen from '../screens/list/ShoppingListDetailsScreen';
 import AddProduct from '../screens/list/AddProduct';
-import EditShoppingListScreen from '../screens/list/EditShoppingListScreen';
+import BillScreen from '../screens/list/BillScreen';
 import ShareShoppingListScreen from '../screens/list/ShareShoppingListScreen';
 
 const defaultNavOptions = {
@@ -36,7 +36,7 @@ const ShopListNavigator = createStackNavigator({
     ShopListDetails: ShoppingListDetailsScreen,
     CreateShopList: CreateShoppingListScreen,
     AddProduct: AddProduct,
-    EditShoppingList: EditShoppingListScreen,
+    Bill: BillScreen,
     ShareShoppingList: ShareShoppingListScreen,
 },{
     defaultNavigationOptions: defaultNavOptions,

@@ -17,15 +17,13 @@ const ShoppingListDetailsScreen = props => {
 
     const userId = useSelector(state => state.users.userId);
 
-    const shoppingListNav = props.navigation.state.params.list;
+    const shoppingListNav = props.navigation.getParam("list");
     const allLists = useSelector(state => state.shopLists);
     const shoppingList = allLists["shopList"].filter(list => list.members.indexOf(userId) >= 0).filter(list => list.title === shoppingListNav["title"]);
 
     const [productsList, setProductsList] = useState([]);
     const [checkProduct, setCheckProduct] = useState(false);
     const [checkedProduct, setCheckedProduct] = useState();
-
-    const [newListName, setNewListName] = useState(props.navigation.getParam("newListTitle", shoppingList[0].title));
 
     useEffect(async () => {
         setIsLoading(true);
@@ -73,15 +71,15 @@ const ShoppingListDetailsScreen = props => {
                 :
                 <View>
                     <View style={styles.topBar}>
-                        <TouchableOpacity style={styles.button} onPress={() => {
-                            props.navigation.navigate("ShopListMainWindow")
+                        <TouchableOpacity style={styles.button} onPress={async () => {
+                            props.navigation.navigate("ShopListMainWindow");
                         }}
                         >
                             <Ionicons size={60} name={'arrow-back-circle-outline'} color='black' />
                         </TouchableOpacity>
                     </View>
                     <View>
-                        <Text>{shoppingListNav["title"]}</Text>
+                        <Text>{shoppingList[0].title}</Text>
                     </View>
                     <View style={styles.productsList}>
                         <TouchableOpacity onPress={() => {
@@ -103,9 +101,7 @@ const ShoppingListDetailsScreen = props => {
                                                         itemData.item.buyer === userId ? "✓" : "X"}
                                                     isChecked={itemData.item.buyer === userId ? true :
                                                         itemData.item.price === undefined ? null : true}
-                                                    checkedColor={itemData.item.buyer === userId ? "green" :
-                                                        itemData.item.price === undefined ? null : "red"
-                                                    }
+                                                    checkedColor={itemData.item.price === undefined ? null : "yellow"}
                                                     active={itemData.item.buyer === userId ? true : false}
                                                     checkedTextColor="#000"
                                                     uncheckedTextColor="#000"
@@ -156,22 +152,7 @@ const ShoppingListDetailsScreen = props => {
                     }
                     <View>
                         <Button title="Podgląd szczegółów" onPress={() => {
-                            props.navigation.navigate("EditShoppingList", { "list": shoppingListNav });
-                        }} />
-                    </View>
-                    <View>
-                        <Button title="Usuń" onPress={() => {
-                            Alert.alert("Usuwanie listy zakupów", "Czy na pewno usunąć tą listę?", [
-                                {
-                                    text: "Tak", onPress: async () => {
-                                        await dispatch(shopListsActions.deleteList(shoppingListNav.title)).then(() => {
-                                            dispatch(shopListsActions.fetchLists());
-                                            props.navigation.navigate("ShopListMainWindow");
-                                        });
-                                    }
-                                },
-                                { text: "Nie" }
-                            ])
+                            props.navigation.navigate("Bill", { "list": shoppingListNav });
                         }} />
                     </View>
                     <View>

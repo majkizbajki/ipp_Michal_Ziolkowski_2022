@@ -21,7 +21,7 @@ const AddProduct = props => {
 
     const userId = useSelector(state => state.users.userId);
 
-    const shoppingListNav = props.navigation.state.params.list;
+    const shoppingListNav = props.navigation.getParam("list");
     const allLists = useSelector(state => state.shopLists);
     const shoppingList = allLists["shopList"].filter(list => list.members.indexOf(userId) >= 0).filter(list => list.title === shoppingListNav["title"]);
 
@@ -113,7 +113,7 @@ const AddProduct = props => {
             <View style={styles.topBar}>
                 <View style={styles.menuButton}>
                     <TouchableOpacity style={styles.button} onPress={() => {
-                        props.navigation.navigate("ShopListDetails", { "list": shoppingListNav });
+                        props.navigation.navigate("ShopListDetails", { "list": shoppingList[0] });
                     }}
                     >
                         <Ionicons size={60} name={'arrow-back-circle-outline'} color='black' />
@@ -232,13 +232,13 @@ const AddProduct = props => {
                     (<Button title="Dodaj" onPress={async () => {
                         if (searchProduct !== "" && amount !== "" && category !== "") {
                             if (productsList.filter(list => list.productId === searchProduct.toLowerCase()).length === 0 || productsList.filter(list => list.name.toLowerCase() === searchProduct.toLowerCase()).length === 0) {
-                                await dispatch(shopListsActions.addProduct(shoppingListNav.title, searchProduct.toLowerCase(), searchProduct, amount, category)).then(() => {
+                                await dispatch(shopListsActions.addProduct(shoppingList[0].title, searchProduct.toLowerCase(), searchProduct, amount, category)).then(() => {
                                     dispatch(shopListsActions.fetchLists());
-                                    props.navigation.navigate("ShopListDetails", { "list": shoppingListNav });
+                                    props.navigation.navigate("ShopListDetails", { "list": shoppingList[0] });
                                 });
                             }
                             else {
-                                Alert.alert("Ups! Wystąpił błąd!", "Produkt o tej nazwie jest już na liście.", [{ text: "OK", onPress: () => { props.navigation.navigate("ShopListDetails", { "list": shoppingListNav }); } }]);
+                                Alert.alert("Ups! Wystąpił błąd!", "Produkt o tej nazwie jest już na liście.", [{ text: "OK", onPress: () => { props.navigation.navigate("ShopListDetails", { "list": shoppingList[0] }); } }]);
                             }
                         }
                         else {
@@ -250,9 +250,9 @@ const AddProduct = props => {
                         let number = amount.replace(/[, -]/g, ".")
                         if (amount !== "" && category !== "" && number.match(re) !== null) {
                             setAmout(number.match(re)[0] + " " + amountType);
-                            await dispatch(shopListsActions.updateProduct(shoppingListNav.title, productNav, amount, category)).then(() => {
+                            await dispatch(shopListsActions.updateProduct(shoppingList[0].title, productNav, amount, category)).then(() => {
                                 dispatch(shopListsActions.fetchLists());
-                                props.navigation.navigate("ShopListDetails", { "list": shoppingListNav });
+                                props.navigation.navigate("ShopListDetails", { "list": shoppingList[0] });
                             });
                         }
                         else {

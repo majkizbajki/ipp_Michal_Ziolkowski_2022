@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, Button, TextInput } from 'react-native';
+import { Ionicons, Feather } from "@expo/vector-icons";
 
 import * as shopListsActions from '../../store/actions/shoplist';
 import * as userActions from '../../store/actions/user';
@@ -11,7 +11,7 @@ const ShoppingListsScreen = props => {
     const [isLoading, setIsLoading] = useState();
     const [isReloading, setIsReloading] = useState(false);
     const [error, setError] = useState();
-    const [userLists, setUserLists] = useState({"shopList":[]})
+    const [userLists, setUserLists] = useState({ "shopList": [] })
     const dispatch = useDispatch();
 
     const allUsers = useSelector(state => state.users);
@@ -19,7 +19,10 @@ const ShoppingListsScreen = props => {
 
     const allLists = useSelector(state => state.shopLists);
 
-    useEffect( async () => {
+    const [renameList, setRenameList] = useState([false, ""]);
+    const [newListTitle, setNewListTitle] = useState();
+
+    useEffect(async () => {
         setIsLoading(true);
         await dispatch(userActions.fetchUsers()).then(() => {
             dispatch(shopListsActions.fetchLists());
@@ -28,9 +31,9 @@ const ShoppingListsScreen = props => {
     }, [dispatch]);
 
     useEffect(() => {
-        const userListsObject = {"shopList": []};
-        for (let i=0;i<allLists.shopList.length; i++){
-            if(allLists.shopList[i].creatorId === actuallUser.authId || allLists.shopList[i].members.indexOf(actuallUser.authId) >= 0 ){
+        const userListsObject = { "shopList": [] };
+        for (let i = 0; i < allLists.shopList.length; i++) {
+            if (allLists.shopList[i].creatorId === actuallUser.authId || allLists.shopList[i].members.indexOf(actuallUser.authId) >= 0) {
                 userListsObject.shopList.push(allLists.shopList[i]);
             }
         }
@@ -53,37 +56,102 @@ const ShoppingListsScreen = props => {
 
     return (
         <View style={styles.screen}>
-            <View style={styles.topBar}>
-                <View style={styles.menuButton}>
-                    <TouchableOpacity style={styles.button} onPress={() => {
-                        props.navigation.navigate("Menu")
-                    }}
-                    >
-                        <Ionicons size={60} name={'menu'} color='black' />
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.titleContainer}>
-                    <Text style={{ fontSize: 22 }}>Listy zakupów</Text>
-                </View>
-            </View>
-            <View style={styles.shopListsContainer}>
-                <FlatList data={userLists.shopList} keyExtractor={item => item.title} renderItem={itemData => (
+            {renameList[0] ?
+                <View>
                     <View>
-                        <TouchableOpacity onPress={() => {
-                            props.navigation.navigate("ShopListDetails", {"list": itemData.item});
+                        <Text>Zmień nazwę listy zakupów</Text>
+                    </View>
+                    <View>
+                        <TextInput placeholder={renameList[1]} onChangeText={text => {
+                            setNewListTitle(text);
+                        }} />
+                    </View>
+                    <View>
+                        <Button title="Potwierdź" onPress={async () => {
+                            if (userLists.shopList.filter(list => list.title === newListTitle).length === 0) {
+                                await dispatch(shopListsActions.updateList(renameList[1], newListTitle)).then(() => {
+                                    setRenameList([false, ""]);
+                                })
+                            } else if (newListTitle === renameList[1]) {
+                                setRenameList([false, ""]);
+                            } else {
+                                Alert.alert("Ups! Wystąpił problem!", "Lista zakupów o podanej nazwie już istnieje. Spróbuj ponownie!", ["Ok"]);
+                            }
+
+                        }} />
+                    </View>
+                    <View>
+                        <Button title="Anuluj" onPress={() => {
+                            setRenameList([false, ""]);
+                        }} />
+                    </View>
+                </View>
+                :
+                <View>
+                    <View style={styles.topBar}>
+                        <View style={styles.menuButton}>
+                            <TouchableOpacity style={styles.button} onPress={() => {
+                                props.navigation.navigate("Menu")
+                            }}
+                            >
+                                <Ionicons size={60} name={'menu'} color='black' />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.titleContainer}>
+                            <Text style={{ fontSize: 22 }}>Listy zakupów</Text>
+                        </View>
+                    </View>
+                    <View style={styles.shopListsContainer}>
+                        <FlatList data={userLists.shopList} keyExtractor={item => item.title} renderItem={itemData => (
+                            <View>
+                                <View>
+                                    <TouchableOpacity onPress={() => {
+                                        props.navigation.navigate("ShopListDetails", { "list": itemData.item });
+                                    }}>
+                                        <Text>{itemData.item.title}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                {itemData.item.creatorId === actuallUser.authId ?
+                                    <View>
+                                        <View>
+                                            <TouchableOpacity onPress={() => {
+                                                Alert.alert("Usuwanie listy zakupów", "Czy na pewno usunąć tą listę?", [
+                                                    {
+                                                        text: "Tak", onPress: async () => {
+                                                            await dispatch(shopListsActions.deleteList(itemData.item.title)).then(() => {
+                                                                dispatch(shopListsActions.fetchLists());
+                                                            });
+                                                        }
+                                                    },
+                                                    { text: "Nie" }
+                                                ])
+                                            }}>
+                                                <Ionicons name="trash-bin-outline" size={40} />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View>
+                                            <TouchableOpacity onPress={() => {
+                                                setRenameList([true, itemData.item.title]);
+                                            }}>
+                                                <Feather name="edit" size={40} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                    :
+                                    null
+                                }
+                            </View>
+                        )} />
+                    </View>
+                    <View style={styles.addButtonContainer}>
+                        <TouchableOpacity style={styles.addButton} onPress={() => {
+                            props.navigation.navigate("CreateShopList");
                         }}>
-                            <Text>{itemData.item.title}</Text>
+                            <Text style={{ fontSize: 40, color: 'white' }}>+</Text>
                         </TouchableOpacity>
                     </View>
-                )} />
-            </View>
-            <View style={styles.addButtonContainer}>
-                <TouchableOpacity style={styles.addButton} onPress={() => {
-                    props.navigation.navigate("CreateShopList");
-                }}>
-                    <Text style={{ fontSize: 40, color: 'white' }}>+</Text>
-                </TouchableOpacity>
-            </View>
+                </View>
+            }
         </View>
     );
 };
