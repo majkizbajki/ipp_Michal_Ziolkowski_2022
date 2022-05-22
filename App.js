@@ -8,6 +8,8 @@ import authReducer from './store/reducers/auth';
 import userReducer from './store/reducers/user';
 import shopListReducer from './store/reducers/shoplist';
 
+import NavigationContainer from './navigation/NavigationContainer';
+
 const rootReducer = combineReducers({
   auth: authReducer,
   users: userReducer,
@@ -19,7 +21,7 @@ const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 export default function App() {
   return (
     <Provider store={store}>
-      <MenuNavigator />
+      <NavigationContainer />
     </Provider>
   );
 }

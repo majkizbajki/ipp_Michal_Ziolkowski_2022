@@ -46,7 +46,7 @@ const AuthScreen = props => {
         setIsLoading(true);
 
         try {
-            await dispatch(action);
+            await dispatch(action).then(() => {});
             if(!isLoginScreen){
                 dispatch(userActions.createUser(firstName,lastName,email,username));
             }

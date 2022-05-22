@@ -13,6 +13,7 @@ import ShoppingListDetailsScreen from '../screens/list/ShoppingListDetailsScreen
 import AddProduct from '../screens/list/AddProduct';
 import BillScreen from '../screens/list/BillScreen';
 import ShareShoppingListScreen from '../screens/list/ShareShoppingListScreen';
+import StartUpScreen from '../screens/StartUpScreen';
 
 const defaultNavOptions = {
     headerShown: false,
@@ -52,6 +53,7 @@ const MenuNavigator = createStackNavigator({
 });
 
 const MainNavigator = createSwitchNavigator({
+    StartUp: StartUpScreen,
     Auth: AuthNavigator,
     Menu: MenuNavigator,
 },{

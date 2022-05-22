@@ -1,7 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet, Button } from 'react-native';
+import { useDispatch, useSelector } from "react-redux";
+
+import * as authActions from "../../store/actions/auth";
 
 const MenuScreen = props => {
+
+    const dispatch = useDispatch();
+
     return (
         <View style={styles.screen}>
             <View style={styles.titleContainer}>
@@ -20,6 +26,11 @@ const MenuScreen = props => {
             <View>
                 <Button title="Znajomi" onPress={() => {
                     props.navigation.navigate('Friends');
+                }} />
+            </View>
+            <View>
+                <Button title="Wyloguj" onPress={() => {
+                    dispatch(authActions.logout());
                 }} />
             </View>
         </View>
