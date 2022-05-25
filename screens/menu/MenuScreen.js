@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, Button } from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
 
 import * as authActions from "../../store/actions/auth";
+import { LogBox } from 'react-native';
+
+LogBox.ignoreLogs(['Setting a timer']);
 
 const MenuScreen = props => {
 
